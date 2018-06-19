@@ -2,9 +2,27 @@
 
 A Clojure library designed to ... well, that part is up to you.
 
-## Usage
+## Installation
+```clojure
+;; Add to dependencies
+[district0x/ui-component-form "0.1.0-SNAPSHOT"]
 
-FIXME
+## Usage
+```clojure
+(defn form []
+  (let [form-data (r/atom {})
+        errors (reaction {:local (some-validation-fn)})]
+    (fn []
+      [:div
+       [:h1 "test"]
+       [text-input {:form-data form-data
+                    :id :example.place/state
+                    :errors errors}]
+       [textarea-input {:form-data form-data
+                        :id :example.place/city
+                        :errors errors}]])))
+```
+validation errors expected to mirror the shape of data
 
 ## License
 
