@@ -1,6 +1,6 @@
 # district-ui-component-form
 
-A Clojure library designed to ... well, that part is up to you.
+Reagent form library
 
 ## Installation
 ```clojure
@@ -22,7 +22,8 @@ A Clojure library designed to ... well, that part is up to you.
                         :id :example.place/city
                         :errors errors}]])))
 ```
-validation errors expected to mirror the shape of data
+Validation errors are expected to mirror the shape of data, divided into :local and :remote.
+Local group is always on, where remote errors persists only until the inputs are touched.
 
 ## License
 
