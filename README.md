@@ -9,6 +9,10 @@ Reagent form library
 
 ## Usage
 ```clojure
+(ns my.application
+  (:require
+    [district.ui.component.form.input :as inputs :refer [text-input textarea-input]]))
+
 (defn form []
   (let [form-data (r/atom {})
         errors (reaction {:local (some-validation-fn)})]
