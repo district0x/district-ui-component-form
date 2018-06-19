@@ -5,7 +5,7 @@ Reagent form library
 ## Installation
 ```clojure
 ;; Add to dependencies
-[district0x/ui-component-form "0.1.0-SNAPSHOT"]
+[district0x/district-ui-component-form "0.1.0-SNAPSHOT"]
 
 ## Usage
 ```clojure
@@ -30,8 +30,6 @@ Validation errors are expected to mirror the shape of data, divided into :local 
 Local group is always on, where remote errors persists only until the inputs are touched.
 
 ## License
-
-Copyright © 2018 FIXME
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.

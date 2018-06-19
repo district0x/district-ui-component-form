@@ -1,4 +1,4 @@
-(def project 'district0x/ui-component-form)
+(def project 'district0x/district-ui-component-form)
 (def version "0.1.0-SNAPSHOT")
 
 (set-env! :resource-paths #{"resources" "src"}
