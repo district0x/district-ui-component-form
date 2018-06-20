@@ -1,5 +1,5 @@
 (ns district.ui.component.form.input
-  (:require [clojure.set :refer rename-keys]))
+  (:require [clojure.set :refer [rename-keys]]))
 
 (def arg-keys [:id :form-data :errors :on-change :attrs])
 
