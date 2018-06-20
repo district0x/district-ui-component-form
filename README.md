@@ -11,6 +11,7 @@ Reagent form library
 ```clojure
 (ns my.application
   (:require
+    [district.ui.component.form.chip-input :refer [chip-input]]
     [district.ui.component.form.input :as inputs :refer [text-input textarea-input]]))
 
 (defn form []
