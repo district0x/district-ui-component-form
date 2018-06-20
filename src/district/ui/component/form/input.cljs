@@ -1,4 +1,5 @@
-(ns district.ui.component.form.input)
+(ns district.ui.component.form.input
+  (:require [clojure.set :refer rename-keys]))
 
 (def arg-keys [:id :form-data :errors :on-change :attrs])
 
@@ -118,7 +119,7 @@
        (doall
         (map (fn [option]
                ^{:key (str (:key option))}
-               [:option (clojure.set/rename-keys option {:key :value})
+               [:option (rename-keys option {:key :value})
                 (:value option)])
              options))])))
 

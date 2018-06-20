@@ -1,5 +1,5 @@
 (def project 'district0x/district-ui-component-form)
-(def version "0.1.1-SNAPSHOT")
+(def version "0.1.2-SNAPSHOT")
 
 (set-env! :resource-paths #{"resources" "src"}
           :source-paths   #{"test"}
@@ -8,6 +8,7 @@
                             [adzerk/boot-test "RELEASE" :scope "test"]
                             [adzerk/boot-cljs          "2.1.4"  :scope "test"];;:exclusions [org.clojure/clojurescript]
                             [adzerk/bootlaces    "0.1.13" :scope "test"]
+                            [day8.re-frame/re-frame-10x "0.3.1"]
                             ])
 
 (task-options!
