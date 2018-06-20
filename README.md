@@ -24,7 +24,16 @@ Reagent form library
                     :errors errors}]
        [textarea-input {:form-data form-data
                         :id :example.place/city
-                        :errors errors}]])))
+                        :errors errors}]
+       [chip-input {:form-data form-data
+                    :chip-set-path [:tags]
+                    :ac-options ["some tag"
+                                 "some other tag"
+                                 "a nice tag"
+                                 "a beautiful tag"
+                                 "something else"
+                                 "another"]
+                    :chip-render-fn chip-render}]])))
 ```
 Validation errors are expected to mirror the shape of data, divided into :local and :remote.
 Local group is always on, where remote errors persists only until the inputs are touched.

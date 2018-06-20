@@ -1,5 +1,7 @@
 (ns district.ui.component.form.input)
 
+(def arg-keys [:id :form-data :errors :on-change :attrs])
+
 (defn get-by-path
   ([doc path]
    (get-by-path doc path nil))
@@ -69,7 +71,8 @@
   (fn [{:keys [id form-data errors on-change attrs input-type] :as opts}]
     (let [a (if (= input-type :textarea)
               :textarea
-              :input)]
+              :input)
+          other-opts (apply dissoc opts (into arg-keys :input-type))]
       [a (merge
           {:type "text"
            :value (get-by-path @form-data id "")
@@ -77,6 +80,7 @@
                          (swap! form-data assoc-by-path id v)
                          (when on-change
                            (on-change v)))}
+          other-opts
           attrs)])))
 
 (defn text-input [opts]
@@ -91,28 +95,32 @@
 
 (defn select-input* [{:keys [id form-data errors on-change attrs options] :as opts}]
   (fn [{:keys [id form-data errors on-change attrs options] :as opts}]
-    [:select
-     (merge attrs
-            {:on-change (fn [item]
-                          (let [val (.-target.value item)
-                                iv (and (re-matches #"^\d*(\.|\.)?\d*$" val)
-                                        (js/parseFloat val))
-                                val (if
-                                        (or
-                                         (nil? iv)
-                                         (js/isNaN iv))
-                                      val
-                                      iv)]
-                            (swap! form-data assoc-by-path id val)
-                            (when on-change
-                              (on-change val))))
-             :value (get-by-path @form-data id)})
-     (doall
-      (map (fn [option]
-             ^{:key (str (:key option))}
-             [:option (clojure.set/rename-keys option {:key :value})
-              (:value option)])
-           options))]))
+    (let [other-opts (apply dissoc opts (into arg-keys :options))]
+      [:select
+       (merge
+        {:on-change (fn [item]
+                      (let [val (.-target.value item)
+                            iv (and (re-matches #"^\d*(\.|\.)?\d*$" val)
+                                    (js/parseFloat val))
+                            val (if
+                                    (or
+                                     (nil? iv)
+                                     (js/isNaN iv))
+                                  val
+                                  iv)]
+                        (swap! form-data assoc-by-path id val)
+                        (when on-change
+                          (on-change val))))
+         :value (get-by-path @form-data id)}
+        other-opts
+        attrs)
+
+       (doall
+        (map (fn [option]
+               ^{:key (str (:key option))}
+               [:option (clojure.set/rename-keys option {:key :value})
+                (:value option)])
+             options))])))
 
 (defn select-input [{:keys [id form-data errors] :as opts}]
   [err-reported opts select-input*])
@@ -120,38 +128,42 @@
 (defn int-input* [{:keys [id form-data errors on-change attrs] :as opts}]
   (let [fallback (atom nil)]
     (fn [{:keys [id form-data errors on-change attrs] :as opts}]
-      [:input (merge
-               {:type "text"
-                :value (if-let [f @fallback]
-                         f
-                         (get-by-path @form-data id ""))
-                :on-change #(let [v (-> % .-target .-value)]
-                              (when-let [iv (and (re-matches #"^\d*$" v)
-                                                 (js/parseInt v))]
-                                (if-not (js/isNaN iv)
-                                  (do
-                                    (reset! fallback v)
-                                    (when on-change
-                                      (on-change iv))
-                                    (swap! form-data assoc-by-path id iv))
-                                  (do
-                                    (swap! form-data assoc-by-path id nil)
-                                    (reset! fallback v)))))}
-               attrs)])))
+      (let [other-opts (apply dissoc opts (into arg-keys :options))]
+        [:input (merge
+                 {:type "text"
+                  :value (if-let [f @fallback]
+                           f
+                           (get-by-path @form-data id ""))
+                  :on-change #(let [v (-> % .-target .-value)]
+                                (when-let [iv (and (re-matches #"^\d*$" v)
+                                                   (js/parseInt v))]
+                                  (if-not (js/isNaN iv)
+                                    (do
+                                      (reset! fallback v)
+                                      (when on-change
+                                        (on-change iv))
+                                      (swap! form-data assoc-by-path id iv))
+                                    (do
+                                      (swap! form-data assoc-by-path id nil)
+                                      (reset! fallback v)))))}
+                 other-opts
+                 attrs)]))))
 
 (defn int-input [{:keys [id form-data errors] :as opts}]
   [err-reported opts int-input*])
 
 (defn checkbox-input* [{:keys [id form-data errors on-change attrs] :as opts}]
   (fn [{:keys [id form-data errors on-change attrs] :as opts}]
-    [:input (merge
-             {:type "checkbox"
-              :checked (get-by-path @form-data id "")
-              :on-change #(let [v (-> % .-target .-value)]
-                            (swap! form-data update-by-path id not)
-                            (when on-change
-                              (on-change v)))}
-             attrs)]))
+    (let [other-opts (apply dissoc opts (into arg-keys :options))]
+      [:input (merge
+               {:type "checkbox"
+                :checked (get-by-path @form-data id "")
+                :on-change #(let [v (-> % .-target .-value)]
+                              (swap! form-data update-by-path id not)
+                              (when on-change
+                                (on-change v)))}
+               other-opts
+               attrs)])))
 
 (defn checkbox-input [{:keys [id form-data errors] :as opts}]
   [err-reported opts checkbox-input*])
