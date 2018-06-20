@@ -73,7 +73,7 @@
     (let [a (if (= input-type :textarea)
               :textarea
               :input)
-          other-opts (apply dissoc opts (into arg-keys :input-type))]
+          other-opts (apply dissoc opts (conj arg-keys :input-type))]
       [a (merge
           {:type "text"
            :value (get-by-path @form-data id "")
@@ -96,7 +96,7 @@
 
 (defn select-input* [{:keys [id form-data errors on-change attrs options] :as opts}]
   (fn [{:keys [id form-data errors on-change attrs options] :as opts}]
-    (let [other-opts (apply dissoc opts (into arg-keys :options))]
+    (let [other-opts (apply dissoc opts (conj arg-keys :options))]
       [:select
        (merge
         {:on-change (fn [item]
@@ -129,7 +129,7 @@
 (defn int-input* [{:keys [id form-data errors on-change attrs] :as opts}]
   (let [fallback (atom nil)]
     (fn [{:keys [id form-data errors on-change attrs] :as opts}]
-      (let [other-opts (apply dissoc opts (into arg-keys :options))]
+      (let [other-opts (apply dissoc opts (conj arg-keys :options))]
         [:input (merge
                  {:type "text"
                   :value (if-let [f @fallback]
@@ -155,7 +155,7 @@
 
 (defn checkbox-input* [{:keys [id form-data errors on-change attrs] :as opts}]
   (fn [{:keys [id form-data errors on-change attrs] :as opts}]
-    (let [other-opts (apply dissoc opts (into arg-keys :options))]
+    (let [other-opts (apply dissoc opts (conj arg-keys :options))]
       [:input (merge
                {:type "checkbox"
                 :checked (get-by-path @form-data id "")
