@@ -5,7 +5,7 @@ Reagent form library
 ## Installation
 ```clojure
 ;; Add to dependencies
-[district0x/district-ui-component-form "0.1.3-SNAPSHOT"]
+[district0x/district-ui-component-form "0.1.4-SNAPSHOT"]
 
 ## Usage
 ```clojure

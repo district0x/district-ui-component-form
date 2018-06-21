@@ -1,6 +1,6 @@
 (ns district.ui.component.form.chip-input
   (:require [reagent.core :as r]
-            [district.ui.component.form.input :refer [text-input get-by-path assoc-by-path]]
+            [district.ui.component.form.input :refer [text-input* get-by-path assoc-by-path]]
             [clojure.string :as str])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
