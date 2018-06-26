@@ -1,5 +1,8 @@
 (ns district.ui.component.form.input
-  (:require [clojure.set :refer [rename-keys]]))
+  (:require [clojure.set :refer [rename-keys]]
+            [reagent.core :as r]
+            [clojure.string :as str])
+  (:require-macros [reagent.ratom :refer [reaction]]))
 
 (def arg-keys [:id :form-data :errors :on-change :attrs])
 
@@ -168,3 +171,64 @@
 
 (defn checkbox-input [{:keys [id form-data errors] :as opts}]
   [err-reported opts checkbox-input*])
+
+(defn autocomplete-input [{:keys [form-data id ac-options on-option-selected on-empty-backspace]}]
+  (let [selected-idx (r/atom 0)]
+    (fn [{:keys [form-data id ac-options on-option-selected on-empty-backspace]}]
+      (let [select-opt (fn [o]
+                         (swap! form-data assoc id "") 
+                         (reset! selected-idx 0)
+                         (on-option-selected o))
+            selectable-opts (let [input (get @form-data id)]
+                              (when (not-empty input)
+                                (filter #(str/starts-with? % input) ac-options)))
+            key-down-handler (fn [e]
+                               (let [key-code (-> e .-keyCode)
+                                     input (get @form-data id)]
+                                 (cond
+                                   (and (= key-code 8) ;; backspace key
+                                        (empty? input))
+                                   (on-empty-backspace)
+
+                                   (= key-code 13) ;; return key
+                                   (select-opt (nth selectable-opts @selected-idx))
+
+                                   (= key-code 40) ;; down key
+                                   (swap! selected-idx #(min (inc %) (dec (count selectable-opts))))
+
+                                   (= key-code 38) ;; up key
+                                   (swap! selected-idx #(max (dec %) 0)))))]
+        [:div.autocomplete-input
+         [text-input {:form-data form-data
+                      :id id
+                      :on-key-down key-down-handler}]
+         (when (not-empty selectable-opts)
+           [:ol.options
+            (doall
+             (map-indexed
+              (fn [idx opt]
+                ^{:key opt}
+                [:li.option {:class (when (= idx @selected-idx) "selected")
+                             :style (when (= idx @selected-idx) {:background-color "red"}) ;; for testing only
+                             :on-click #(select-opt opt)} 
+                 opt])
+              selectable-opts))])]))))
+
+(defn chip-input [{:keys [form-data chip-set-path ac-options chip-render-fn on-change]}]
+  [:div.chip-input
+   [:ol.chip-input
+    (for [c (get-in @form-data chip-set-path)]
+      ^{:key c}
+      [:li.chip
+       (chip-render-fn c)
+       [:span {:on-click #(swap! form-data update-in chip-set-path (fn [cs] (remove #{c} cs)))}
+        "X"]])]
+   [autocomplete-input {:form-data form-data
+                        :id :text
+                        :ac-options (look (->> ac-options
+                                          (remove (set (get-in @form-data chip-set-path)))
+                                          (filter #(not= % nil))
+                                          (into [])))
+                        :on-option-selected #(do (swap! form-data update-in chip-set-path (fn [cs] (conj cs %)))
+                                                 (on-change))
+                        :on-empty-backspace #(swap! form-data update-in chip-set-path butlast)}]])
