@@ -225,10 +225,10 @@
         "X"]])]
    [autocomplete-input {:form-data form-data
                         :id :text
-                        :ac-options (look (->> ac-options
-                                          (remove (set (get-in @form-data chip-set-path)))
-                                          (filter #(not= % nil))
-                                          (into [])))
+                        :ac-options (->> ac-options
+                                         (remove (set (get-in @form-data chip-set-path)))
+                                         (filter #(not= % nil))
+                                         (into []))
                         :on-option-selected #(do (swap! form-data update-in chip-set-path (fn [cs] (conj cs %)))
                                                  (on-change))
                         :on-empty-backspace #(swap! form-data update-in chip-set-path butlast)}]])
