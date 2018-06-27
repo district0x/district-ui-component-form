@@ -235,23 +235,29 @@
 
 (defn file-drag-input [{:keys [form-data id file-accept-pred on-file-accepted on-file-rejected]}]
   (let [allow-drop #(.preventDefault %)
+        selected-file (r/atom nil)
         handle-files-select (fn [files]
                               (let [f (aget files 0)
                                     fprops {:name (.-name f)
                                             :type (.-type f)
-                                            :size (.-size f)}
-                                    reader (js/FileReader.)]
+                                            :size (.-size f)}]
                                 (if (file-accept-pred fprops)
-                                  (do
-                                    (set! (.-onload reader) (fn [e]
-                                                              (let [img-data (-> e .-target .-result)
-                                                                    fmap (assoc fprops :url-data img-data)] 
-                                                                (swap! form-data assoc id fmap)
-                                                                (on-file-accepted (assoc fmap :file f)))))
-                                    (.readAsDataURL reader f))
+                                  (let [url-reader (js/FileReader.)
+                                        ab-reader (js/FileReader.)]
+                                    (set! (.-onload url-reader) (fn [e]
+                                                                  (let [img-data (-> e .-target .-result)
+                                                                        fmap (assoc fprops :url-data img-data)] 
+                                                                    (reset! selected-file fmap))))
+                                    (.readAsDataURL url-reader f)
+                                    (set! (.-onload ab-reader) (fn [e]
+                                                                 (let [img-data (-> e .-target .-result)
+                                                                       fmap (assoc fprops :array-buffer img-data)] 
+                                                                   (swap! form-data assoc id fmap)
+                                                                   (on-file-accepted fmap))))
+                                    (.readAsArrayBuffer ab-reader f))
                                   (on-file-rejected fprops))))]
     (fn []
-      (let [{:keys [name url-data]} (get @form-data id)]
+      (let [{:keys [name url-data]} @selected-file]
         [:div.dropzone 
          {:on-drag-over allow-drop
           :on-drop #(do
