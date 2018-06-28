@@ -258,7 +258,7 @@
                                   (on-file-rejected fprops))))]
     (fn []
       (let [{:keys [name url-data]} @selected-file]
-        [:div.dropzone 
+        [:div.dropzone
          {:on-drag-over allow-drop
           :on-drop #(do
                       (.preventDefault %)
@@ -269,3 +269,21 @@
          [:input {:type :file
                   :on-change (fn [e]
                                (handle-files-select (-> e .-target .-files)))}]]))))
+
+
+(defn pending-button [{:keys [:pending? :pending-text :subscription] :as opts
+                       :or {:pending-text "Sending..."}} & children]
+  "Provide an array of subscription"
+  (let [other-opts (dissoc opts :pending? :pending-text)]
+    (into
+     [:button (merge
+              {}
+              (when subscription
+                (when-not @(re-frame/subscribe subscription)
+                  {:disabled true}))
+              (when pending?
+                {:disabled true})
+              other-opts)]
+     (if pending?
+       [pending-text]
+       children))))
