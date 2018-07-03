@@ -271,16 +271,12 @@
                                (handle-files-select (-> e .-target .-files)))}]]))))
 
 
-(defn pending-button [{:keys [:pending? :pending-text :subscription] :as opts
+(defn pending-button [{:keys [:pending? :pending-text] :as opts
                        :or {:pending-text "Sending..."}} & children]
-  "Provide an array of subscription"
   (let [other-opts (dissoc opts :pending? :pending-text)]
     (into
      [:button (merge
               {}
-              (when subscription
-                (when-not @(re-frame/subscribe subscription)
-                  {:disabled true}))
               (when pending?
                 {:disabled true})
               other-opts)]
