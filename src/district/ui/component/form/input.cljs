@@ -4,7 +4,7 @@
             [clojure.string :as str])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
-(def arg-keys [:id :form-data :errors :on-change :attrs])
+(def arg-keys [:id :form-data :errors :on-change :attrs :group-class])
 
 (defn get-by-path
   ([doc path]
@@ -44,7 +44,7 @@
    [:label label]
    body])
 
-(defn err-reported [{:keys [id form-data errors on-change] :as opts} cmp]
+(defn err-reported [{:keys [id form-data errors on-change group-class] :as opts} cmp]
   (let [touched? (atom false)
         on-touched (fn [new-val]
                      (reset! touched? true)
@@ -64,7 +64,7 @@
                                     (get-by-path errors [:remote id]))]
                     (apply str e)))]
         [:div.input-group
-         {:class (when err :has-error)}
+         {:class (str group-class (when err " has-error"))}
          [cmp (assoc opts :on-change on-touched)]
          [:span.help-block (if err
                              err
@@ -214,7 +214,7 @@
                  opt])
               selectable-opts))])]))))
 
-(defn chip-input [{:keys [form-data chip-set-path ac-options chip-render-fn on-change]}]
+(defn chip-input* [{:keys [form-data chip-set-path ac-options chip-render-fn on-change]}]
   [:div.chip-input
    [:ol.chip-input
     (for [c (get-in @form-data chip-set-path)]
@@ -233,7 +233,11 @@
                                                  (on-change))
                         :on-empty-backspace #(swap! form-data update-in chip-set-path butlast)}]])
 
-(defn file-drag-input [{:keys [form-data id file-accept-pred on-file-accepted on-file-rejected]}]
+
+(defn chip-input [opts]
+  [err-reported opts chip-input*])
+
+(defn file-drag-input* [{:keys [form-data id file-accept-pred on-file-accepted on-file-rejected]}]
   (let [allow-drop #(.preventDefault %)
         selected-file (r/atom nil)
         handle-files-select (fn [files]
@@ -270,6 +274,8 @@
                   :on-change (fn [e]
                                (handle-files-select (-> e .-target .-files)))}]]))))
 
+(defn file-drag-input [opts]
+  [err-reported opts file-drag-input*])
 
 (defn pending-button [{:keys [:pending? :pending-text] :as opts
                        :or {:pending-text "Sending..."}} & children]
