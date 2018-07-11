@@ -64,7 +64,7 @@
                                     (get-by-path errors [:remote id]))]
                     (apply str e)))]
         [:div.input-group
-         {:class (str group-class (when err " has-error"))}
+         {:class (str (when group-class (name group-class)) (when err " has-error"))}
          [cmp (assoc opts :on-change on-touched)]
          [:span.help-block (if err
                              err
