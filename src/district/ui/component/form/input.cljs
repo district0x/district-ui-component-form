@@ -225,7 +225,7 @@
   (let [focus (r/atom false)]
     (fn [{:keys [form-data chip-set-path ac-options chip-render-fn on-change]}]
       [:div.chip-input
-       {:class (when @focus :focused)}
+       {:class (when @focus "focused")}
        [:ol.chips
         (for [c (get-in @form-data chip-set-path)]
           ^{:key c}
