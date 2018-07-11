@@ -209,7 +209,8 @@
               (fn [idx opt]
                 ^{:key opt}
                 [:li.option {:class (when (= idx @selected-idx) "selected")
-                             :style (when (= idx @selected-idx) {:background-color "red"}) ;; for testing only
+                             ;;:style (when (= idx @selected-idx) {:background-color "red"})  
+                             ;;for testing only
                              :on-click #(select-opt opt)} 
                  opt])
               selectable-opts))])]))))
