@@ -216,7 +216,7 @@
 
 (defn chip-input* [{:keys [form-data chip-set-path ac-options chip-render-fn on-change]}]
   [:div.chip-input
-   [:ol.chip-input
+   [:ol.chips
     (for [c (get-in @form-data chip-set-path)]
       ^{:key c}
       [:li.chip
