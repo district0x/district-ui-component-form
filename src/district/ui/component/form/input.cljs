@@ -172,7 +172,7 @@
 (defn checkbox-input [{:keys [id form-data errors] :as opts}]
   [err-reported opts checkbox-input*])
 
-(defn autocomplete-input [{:keys [form-data id ac-options on-option-selected on-empty-backspace]}]
+(defn autocomplete-input* [{:keys [form-data id ac-options on-option-selected on-empty-backspace]}]
   (let [selected-idx (r/atom 0)]
     (fn [{:keys [form-data id ac-options on-option-selected on-empty-backspace]}]
       (let [select-opt (fn [o]
@@ -199,9 +199,9 @@
                                    (= key-code 38) ;; up key
                                    (swap! selected-idx #(max (dec %) 0)))))]
         [:div.autocomplete-input
-         [text-input {:form-data form-data
-                      :id id
-                      :on-key-down key-down-handler}]
+         [text-input* {:form-data form-data
+                       :id id
+                       :on-key-down key-down-handler}]
          (when (not-empty selectable-opts)
            [:ol.options
             (doall
@@ -215,6 +215,9 @@
                  opt])
               selectable-opts))])]))))
 
+(defn autocomplete-input [{:keys [id form-data errors] :as opts}]
+  [err-reported opts autocomplete-input*])
+
 (defn chip-input* [{:keys [form-data chip-set-path ac-options chip-render-fn on-change]}]
   [:div.chip-input
    [:ol.chips
@@ -224,7 +227,7 @@
        (chip-render-fn c)
        [:span {:on-click #(swap! form-data update-in chip-set-path (fn [cs] (remove #{c} cs)))}
         "X"]])]
-   [autocomplete-input {:form-data form-data
+   [autocomplete-input* {:form-data form-data
                         :id :text
                         :ac-options (->> ac-options
                                          (remove (set (get-in @form-data chip-set-path)))
