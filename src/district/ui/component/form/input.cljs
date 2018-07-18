@@ -221,29 +221,39 @@
 (defn autocomplete-input [{:keys [id form-data errors] :as opts}]
   [err-reported opts autocomplete-input*])
 
-(defn chip-input* [{:keys [form-data chip-set-path ac-options chip-render-fn on-change]}]
+(defn chip-input* [{:keys [form-data chip-set-path ac-options chip-render-fn on-change] :as opts}]
   (let [focus (r/atom false)]
-    (fn [{:keys [form-data chip-set-path ac-options chip-render-fn on-change]}]
-      [:div.chip-input
-       {:class (when @focus "focused")}
-       [:ol.chips
-        (for [c (get-in @form-data chip-set-path)]
-          ^{:key c}
-          [:li.chip
-           (chip-render-fn c)
-           [:span {:on-click #(swap! form-data update-in chip-set-path (fn [cs] (remove #{c} cs)))}
-            "X"]])]
-       [autocomplete-input* {:form-data form-data
-                             :id :text
-                             :ac-options (->> ac-options
-                                              (remove (set (get-in @form-data chip-set-path)))
-                                              (filter #(not= % nil))
-                                              (into []))
-                             :on-option-selected #(do (swap! form-data update-in chip-set-path (fn [cs] (conj cs %)))
-                                                      (on-change))
-                             :on-focus #(reset! focus true)
-                             :on-blur #(reset! focus false)
-                             :on-empty-backspace #(swap! form-data update-in chip-set-path butlast)}]])))
+    (fn [{:keys [form-data chip-set-path ac-options chip-render-fn on-change] :as opts}]
+      ;;TODO: chip-set-path should be just id
+      (let [other-opts (apply dissoc opts (conj arg-keys
+                                                :chip-set-path
+                                                :ac-options
+                                                :chip-render-fn
+                                                :on-change
+                                                :on-empty-backspace
+                                                :on-focus
+                                                :on-blur))]
+        [:div.chip-input
+         {:class (when @focus "focused")}
+         [:ol.chips
+          (for [c (get-in @form-data chip-set-path)]
+            ^{:key c}
+            [:li.chip
+             (chip-render-fn c)
+             [:span {:on-click #(swap! form-data update-in chip-set-path (fn [cs] (remove #{c} cs)))}
+              "X"]])]
+         [autocomplete-input* (merge
+                               {:form-data form-data
+                                :ac-options (->> ac-options
+                                                 (remove (set (get-in @form-data chip-set-path)))
+                                                 (filter #(not= % nil))
+                                                 (into []))
+                                :on-option-selected #(do (swap! form-data update-in chip-set-path (fn [cs] (conj cs %)))
+                                                         (on-change))
+                                :on-focus #(reset! focus true)
+                                :on-blur #(reset! focus false)
+                                :on-empty-backspace #(swap! form-data update-in chip-set-path butlast)}
+                               other-opts)]]))))
 
 
 (defn chip-input [opts]
