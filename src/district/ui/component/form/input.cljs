@@ -249,7 +249,7 @@
                                                  (filter #(not= % nil))
                                                  (into []))
                                 :on-option-selected #(do (swap! form-data update-in chip-set-path (fn [cs] (conj cs %)))
-                                                         (on-change))
+                                                         (when on-change (on-change)))
                                 :on-focus #(reset! focus true)
                                 :on-blur #(reset! focus false)
                                 :on-empty-backspace #(swap! form-data update-in chip-set-path butlast)}
@@ -259,9 +259,9 @@
 (defn chip-input [opts]
   [err-reported opts chip-input*])
 
-(defn file-drag-input* [{:keys [form-data id file-accept-pred on-file-accepted on-file-rejected]}]
+(defn file-drag-input* [{:keys [form-data id file-accept-pred on-file-accepted on-file-rejected]}
+                        :or {file-accept-pred (constantly true)}]
   (let [allow-drop #(.preventDefault %)
-        selected-file (r/atom nil)
         handle-files-select (fn [files]
                               (let [f (aget files 0)
                                     fprops {:name (.-name f)
@@ -272,18 +272,19 @@
                                         ab-reader (js/FileReader.)]
                                     (set! (.-onload url-reader) (fn [e]
                                                                   (let [img-data (-> e .-target .-result)
-                                                                        fmap (assoc fprops :url-data img-data)] 
-                                                                    (reset! selected-file fmap))))
+                                                                        fmap (assoc fprops :url-data img-data)]
+                                                                    (swap! form-data assoc-in [id :selected-file] fmap))))
                                     (.readAsDataURL url-reader f)
                                     (set! (.-onload ab-reader) (fn [e]
                                                                  (let [img-data (-> e .-target .-result)
                                                                        fmap (assoc fprops :array-buffer img-data)] 
-                                                                   (swap! form-data assoc id fmap)
-                                                                   (on-file-accepted fmap))))
+                                                                   (swap! form-data update id merge fmap)
+                                                                   (when on-file-accepted (on-file-accepted fmap)))))
                                     (.readAsArrayBuffer ab-reader f))
-                                  (on-file-rejected fprops))))]
+                                  (when on-file-rejected
+                                    (on-file-rejected fprops)))))]
     (fn []
-      (let [{:keys [name url-data]} @selected-file]
+      (let [{:keys [name url-data]} (get-in @form-data [id :selected-file])]
         [:div.dropzone
          {:on-drag-over allow-drop
           :on-drop #(do
