@@ -259,14 +259,15 @@
 (defn chip-input [opts]
   [err-reported opts chip-input*])
 
-(defn file-drag-input* [{:keys [form-data id file-accept-pred on-file-accepted on-file-rejected]}
-                        :or {file-accept-pred (constantly true)}]
+(defn file-drag-input* [{:keys [form-data id file-accept-pred on-file-accepted on-file-rejected]
+                         :or {file-accept-pred (constantly true)}}]
   (let [allow-drop #(.preventDefault %)
         handle-files-select (fn [files]
                               (let [f (aget files 0)
                                     fprops {:name (.-name f)
                                             :type (.-type f)
-                                            :size (.-size f)}]
+                                            :size (.-size f)
+                                            :file f}]
                                 (if (file-accept-pred fprops)
                                   (let [url-reader (js/FileReader.)
                                         ab-reader (js/FileReader.)]
