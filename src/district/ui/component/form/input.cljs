@@ -59,15 +59,24 @@
                             (or
                              (get-by-path errors [:local id])
                              (get-in-errvec (:local errors) id)))]
-                  (apply str e)
+                  e
                   (when-let [e (and (not @touched?)
                                     (get-by-path errors [:remote id]))]
-                    (apply str e)))]
+                    e))
+            err-map (if (map? err)
+                      err
+                      (when err
+                        {:error err}))]
         [:div.input-group
-         {:class (str (when group-class (name group-class)) (when err " has-error"))}
+         {:class (str (when group-class (name group-class))
+                      (cond (:error err-map) " has-error"
+                            (:warning err-map) " has-warning"
+                            (:hint err-map) " has-hint"))}
          [cmp (assoc opts :on-change on-touched)]
-         [:span.help-block (if err
-                             err
+         [:span.help-block (if err-map
+                             (get err-map :error
+                                  (get err-map :warning
+                                       (get err-map :hint)))
                              [:div {:dangerouslySetInnerHTML {:__html "&nbsp;"}}])]]))))
 
 
