@@ -310,6 +310,67 @@
 (defn file-drag-input [opts]
   [err-reported opts file-drag-input*])
 
+(defn int-input* [{:keys [id form-data errors on-change attrs] :as opts}]
+  (let [fallback (r/atom nil)]
+    (fn [{:keys [id form-data errors on-change attrs] :as opts}]
+      (let [other-opts (apply dissoc opts arg-keys)]
+        [:input (merge
+                 {:type "text"
+                  :value (if-let [f @fallback]
+                           f
+                           (get-by-path @form-data id ""))
+                  :on-change #(let [v (-> % .-target .-value)]
+                                (when-let [iv (and (re-matches #"^\d*$" v)
+                                                   (js/parseInt v))]
+                                  (if-not (js/isNaN iv)
+                                    (do
+                                      (reset! fallback v)
+                                      (when on-change
+                                        (on-change iv))
+                                      (swap! form-data assoc-by-path id iv))
+                                    (do
+                                      (swap! form-data assoc-by-path id nil)
+                                      (reset! fallback v)))))}
+                 other-opts
+                 attrs)]))))
+
+(defn int-input [{:keys [id form-data errors] :as opts}]
+  [err-reported opts int-input*])
+
+(defn amount-input* [{:keys [id form-data errors on-change attrs] :as opts}]
+  (let [fallback (r/atom nil)
+        last-input (r/atom nil)]
+    (fn [{:keys [id form-data errors on-change attrs] :as opts}]
+      (let [other-opts (apply dissoc opts arg-keys)]
+        [:input (merge
+                 {:type "text"
+                  :value (if-let [f @fallback]
+                           (if (= @last-input
+                                  (get-by-path @form-data id 0))
+                             f
+                             (get-by-path @form-data id 0))
+                           (get-by-path @form-data id 0))
+                  ;; :value (get-by-path @form-data id 0)
+                  :on-change #(let [v (-> % .-target .-value)]
+                                (reset! last-input v)
+                                (when-let [iv (and (re-matches #"^\d*(\.|\.)?\d*$" v)
+                                                   (js/parseFloat v))]
+                                  (if-not (js/isNaN iv)
+                                    (do
+                                      (reset! fallback v)
+                                      (when on-change
+                                        (on-change iv))
+                                      (reset! last-input iv)
+                                      (swap! form-data assoc-by-path id iv))
+                                    (do
+                                      (reset! last-input nil)
+                                      (swap! form-data assoc-by-path id nil)
+                                      (reset! fallback v)))))}
+                 attrs)]))))
+
+(defn amount-input [{:keys [id form-data errors] :as opts}]
+  [err-reported opts amount-input*])
+
 (defn pending-button [{:keys [:pending? :pending-text] :as opts
                        :or {:pending-text "Sending..."}} & children]
   (let [other-opts (dissoc opts :pending? :pending-text)]
