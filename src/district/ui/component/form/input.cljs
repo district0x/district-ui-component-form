@@ -4,6 +4,24 @@
             [clojure.string :as str])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
+(defn keys-in [m]
+  (if (map? m)
+    (vec
+     (mapcat (fn [[k v]]
+               (let [sub (keys-in v)
+                     nested (map #(into [k] %) (filter (comp not empty?) sub))]
+                 (if (seq nested)
+                   nested
+                   [[k]])))
+             m))
+    []))
+
+(defn index-by-type [m k]
+  (let [ks (keys-in m)
+        f-ks (filter #(= (last %) k) ks)]
+    (map (fn [i]
+           [(butlast i) (get-in m i)]) f-ks)))
+
 (def arg-keys [:id :form-data :errors :on-change :attrs :group-class])
 
 (defn get-by-path
