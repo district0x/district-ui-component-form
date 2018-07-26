@@ -161,33 +161,6 @@
 (defn select-input [{:keys [id form-data errors] :as opts}]
   [err-reported opts select-input*])
 
-(defn int-input* [{:keys [id form-data errors on-change attrs] :as opts}]
-  (let [fallback (atom nil)]
-    (fn [{:keys [id form-data errors on-change attrs] :as opts}]
-      (let [other-opts (apply dissoc opts (conj arg-keys :options))]
-        [:input (merge
-                 {:type "text"
-                  :value (if-let [f @fallback]
-                           f
-                           (get-by-path @form-data id ""))
-                  :on-change #(let [v (-> % .-target .-value)]
-                                (when-let [iv (and (re-matches #"^\d*$" v)
-                                                   (js/parseInt v))]
-                                  (if-not (js/isNaN iv)
-                                    (do
-                                      (reset! fallback v)
-                                      (when on-change
-                                        (on-change iv))
-                                      (swap! form-data assoc-by-path id iv))
-                                    (do
-                                      (swap! form-data assoc-by-path id nil)
-                                      (reset! fallback v)))))}
-                 other-opts
-                 attrs)]))))
-
-(defn int-input [{:keys [id form-data errors] :as opts}]
-  [err-reported opts int-input*])
-
 (defn checkbox-input* [{:keys [id form-data errors on-change attrs] :as opts}]
   (fn [{:keys [id form-data errors on-change attrs] :as opts}]
     (let [other-opts (apply dissoc opts (conj arg-keys :options))]
