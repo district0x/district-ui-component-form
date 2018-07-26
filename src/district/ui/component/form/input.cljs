@@ -330,7 +330,7 @@
          [:span.file-name name]
          [:label.file-input-label
           {:for (id-for-path id)}
-          (:label opts)]
+          (get opts :label "File...")]
          [:input {:type :file
                   :id (id-for-path id)
                   :on-change (fn [e]
