@@ -316,7 +316,9 @@
                                     (.readAsArrayBuffer ab-reader f))
                                   (when on-file-rejected
                                     (on-file-rejected fprops)))))]
-    (fn []
+    (fn [{:keys [form-data id file-accept-pred on-file-accepted on-file-rejected]
+         :as opts
+         :or {file-accept-pred (constantly true)}}]
       (let [{:keys [name url-data]} (get-in @form-data [id :selected-file])]
         [:div.dropzone
          {:on-drag-over allow-drop
@@ -327,7 +329,8 @@
          [:img {:src url-data}]
          [:span.file-name name]
          [:label.file-input-label
-          {:for (id-for-path id)}]
+          {:for (id-for-path id)}
+          (:label opts)]
          [:input {:type :file
                   :id (id-for-path id)
                   :on-change (fn [e]
