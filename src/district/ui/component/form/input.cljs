@@ -62,6 +62,11 @@
    [:label label]
    body])
 
+(defn id-for-path [path]
+  (if (sequential? path)
+    (str/join "-" (map name path))
+    (name path)))
+
 (defn err-reported [{:keys [id form-data errors on-change group-class] :as opts} cmp]
   (let [touched? (atom false)
         on-touched (fn [new-val]
@@ -321,9 +326,13 @@
           :on-drag-enter allow-drop}
          [:img {:src url-data}]
          [:span.file-name name]
+         [:label.file-input-label
+          {:for (id-for-path id)}]
          [:input {:type :file
+                  :id (id-for-path id)
                   :on-change (fn [e]
-                               (handle-files-select (-> e .-target .-files)))}]]))))
+                               (handle-files-select (-> e .-target .-files)))}]
+         ]))))
 
 (defn file-drag-input [opts]
   [err-reported opts file-drag-input*])
