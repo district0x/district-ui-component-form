@@ -68,22 +68,26 @@
     (name path)))
 
 (defn err-reported [{:keys [id form-data errors on-change group-class] :as opts} cmp]
-  (let [touched? (atom false)
-        on-touched (fn [new-val]
-                     (reset! touched? true)
-                     (when on-change
-                       (on-change new-val)) )]
+  (let []
     (fn [{:keys [id form-data errors on-change] :as opts}]
-      (let [errors (if (satisfies? IAtom errors)
+      (let [on-touched (fn [new-val]
+                         (let [old-meta (or (meta @form-data)
+                                            {})
+                               meta-with-touched (assoc old-meta :touched? true)]
+                           (reset! form-data (with-meta @form-data meta-with-touched))
+                           (when on-change
+                             (on-change new-val))))
+            touched? (:touched? (meta @form-data))
+            errors (if (satisfies? IAtom errors)
                      @errors
                      errors)
             err (if-let [e (and
-                            @touched?
+                            touched?
                             (or
                              (get-by-path errors [:local id])
                              (get-in-errvec (:local errors) id)))]
                   e
-                  (when-let [e (and (not @touched?)
+                  (when-let [e (and (not touched?)
                                     (get-by-path errors [:remote id]))]
                     e))
             err-map (if (map? err)
