@@ -58,7 +58,7 @@
     (update-in doc n-path fn)))
 
 (defn with-label [label body]
-  [:div.labeld-input-group
+  [:div.labeled-input-group
    [:label label]
    body])
 
