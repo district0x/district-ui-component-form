@@ -63,7 +63,7 @@
                   (get-by-path @form-data id))]
     [:div.labeled-input-group
      {:class (str (when group-class (name group-class))
-                  (when filled? (" filled")))}
+                  (when filled? " filled"))}
      [:label label]
      body]))
 
