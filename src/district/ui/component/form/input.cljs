@@ -57,11 +57,13 @@
                   path))]
     (update-in doc n-path fn)))
 
-(defn with-label [label body {:keys [:group-class]}]
-  [:div.labeled-input-group
-   {:class (when group-class (name group-class))}
-   [:label label]
-   body])
+(defn with-label [label body {:keys [:group-class :form-data :id]}]
+  (let [filled? (get-by-path @form-data id)]
+    [:div.labeled-input-group
+     {:class (str (when group-class (name group-class))
+                  (when filled? (" filled")))}
+     [:label label]
+     body]))
 
 (defn id-for-path [path]
   (if (sequential? path)
