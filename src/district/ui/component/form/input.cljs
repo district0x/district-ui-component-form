@@ -57,8 +57,9 @@
                   path))]
     (update-in doc n-path fn)))
 
-(defn with-label [label body]
+(defn with-label [label body {:keys [:group-class]}]
   [:div.labeled-input-group
+   {:class (when group-class (name group-class))}
    [:label label]
    body])
 
