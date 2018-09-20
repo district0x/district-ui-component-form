@@ -60,7 +60,9 @@
 (defn with-label [label body {:keys [:group-class :form-data :id]}]
   (let [filled? (when (and form-data
                            id)
-                  (not (blank? (get-by-path @form-data id))))]
+                  (not (or 
+                         (nil? (get-by-path @form-data id))
+                         (= "" (get-by-path @form-data id)))))]
     [:div.labeled-input-group
      {:class (str (when group-class (name group-class))
                   (when filled? " filled"))}
