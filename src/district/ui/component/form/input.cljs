@@ -60,9 +60,10 @@
 (defn with-label [label body {:keys [:group-class :form-data :id]}]
   (let [filled? (when (and form-data
                            id)
-                  (not (or 
+                  (not (or
                          (nil? (get-by-path @form-data id))
-                         (= "" (get-by-path @form-data id)))))]
+                         (= "" (get-by-path @form-data id))
+                         )))]
     [:div.labeled-input-group
      {:class (str (when group-class (name group-class))
                   (when filled? " filled"))}
@@ -188,12 +189,12 @@
 (defn checkbox-input [{:keys [id form-data errors] :as opts}]
   [err-reported opts checkbox-input*])
 
-(defn autocomplete-input* [{:keys [form-data id ac-options on-option-selected on-empty-backspace] :as opts}]
+(defn autocomplete-input* [{:keys [form-data id ac-options on-option-selected on-empty-backspace on-new-option] :as opts}]
   (let [selected-idx (r/atom 0)]
-    (fn [{:keys [form-data id ac-options on-option-selected on-empty-backspace]}]
-      (let [other-opts (apply dissoc opts (conj arg-keys :ac-options :on-option-selected :on-empty-backspace))
+    (fn [{:keys [form-data id ac-options on-option-selected on-empty-backspace on-new-option]}]
+      (let [other-opts (apply dissoc opts (conj arg-keys :ac-options :on-option-selected :on-empty-backspace :on-new-option))
             select-opt (fn [o]
-                         (swap! form-data assoc id "") 
+                         (swap! form-data assoc id "")
                          (reset! selected-idx 0)
                          (on-option-selected o))
             selectable-opts (let [input (get @form-data id)]
@@ -208,7 +209,11 @@
                                    (on-empty-backspace)
 
                                    (= key-code 13) ;; return key
-                                   (select-opt (nth selectable-opts @selected-idx))
+                                   (if (not-empty selectable-opts)
+                                     (select-opt (nth selectable-opts @selected-idx)) ;; [return] over option
+                                     (when-not (empty? input)
+                                       (on-new-option input)
+                                       (swap! form-data assoc id ""))) ;; [return] with some text that is not a option
 
                                    (= key-code 40) ;; down key
                                    (swap! selected-idx #(min (inc %) (dec (count selectable-opts))))
@@ -228,9 +233,9 @@
               (fn [idx opt]
                 ^{:key opt}
                 [:li.option {:class (when (= idx @selected-idx) "selected")
-                             ;;:style (when (= idx @selected-idx) {:background-color "red"})  
+                             ;;:style (when (= idx @selected-idx) {:background-color "red"})
                              ;;for testing only
-                             :on-click #(select-opt opt)} 
+                             :on-click #(select-opt opt)}
                  opt])
               selectable-opts))])]))))
 
@@ -248,7 +253,10 @@
                                                 :on-change
                                                 :on-empty-backspace
                                                 :on-focus
-                                                :on-blur))]
+                                                :on-blur))
+            add-chip-fn (fn [chip]
+                          (swap! form-data update-in chip-set-path (fn [cs] (conj (or cs []) chip)))
+                          (when on-change (on-change)))]
         [:div.chip-input
          {:class (when @focus "focused")}
          [:ol.chips
@@ -264,8 +272,8 @@
                                                  (remove (set (get-in @form-data chip-set-path)))
                                                  (filter #(not= % nil))
                                                  (into []))
-                                :on-option-selected #(do (swap! form-data update-in chip-set-path (fn [cs] (conj cs %)))
-                                                         (when on-change (on-change)))
+                                :on-option-selected add-chip-fn
+                                :on-new-option add-chip-fn
                                 :on-focus #(reset! focus true)
                                 :on-blur #(reset! focus false)
                                 :on-empty-backspace #(swap! form-data update-in chip-set-path butlast)}
@@ -294,7 +302,7 @@
                                     (.readAsDataURL url-reader f)
                                     (set! (.-onload ab-reader) (fn [e]
                                                                  (let [img-data (-> e .-target .-result)
-                                                                       fmap (assoc fprops :array-buffer img-data)] 
+                                                                       fmap (assoc fprops :array-buffer img-data)]
                                                                    (swap! form-data update id merge fmap)
                                                                    (when on-file-accepted (on-file-accepted fmap)))))
                                     (.readAsArrayBuffer ab-reader f))
