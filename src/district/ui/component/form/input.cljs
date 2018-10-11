@@ -388,6 +388,7 @@
                                       (reset! last-input nil)
                                       (swap! form-data assoc-by-path id nil)
                                       (reset! fallback v)))))}
+                 other-opts
                  attrs)]))))
 
 (defn amount-input [{:keys [id form-data errors] :as opts}]
