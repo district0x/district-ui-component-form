@@ -4,6 +4,8 @@
             [clojure.string :as str])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
+
+(declare chip-input)
 (defn keys-in [m]
   (if (map? m)
     (vec
@@ -66,7 +68,9 @@
                          )))]
     [:div.labeled-input-group
      {:class (str (when group-class (name group-class))
-                  (when filled? " filled"))}
+                  (when filled? " filled")
+                  (when (= (first body)
+                           chip-input) " tall-version"))}
      [:label label]
      body]))
 
