@@ -287,6 +287,8 @@
 (defn chip-input [opts]
   [err-reported opts chip-input*])
 
+(def empty-img-src "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==")
+
 (defn file-drag-input* [{:keys [form-data id file-accept-pred on-file-accepted on-file-rejected]
                          :or {file-accept-pred (constantly true)}}]
   (let [allow-drop #(.preventDefault %)
@@ -322,7 +324,7 @@
                       (.preventDefault %)
                       (handle-files-select (.. % -dataTransfer -files)))
           :on-drag-enter allow-drop}
-         [:img {:src url-data}]
+         [:img {:src (or url-data empty-img-src)}]
          [:span.file-name name]
          [:label.file-input-label
           {:for (id-for-path id)}
