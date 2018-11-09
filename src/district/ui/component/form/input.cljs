@@ -287,7 +287,8 @@
 (defn chip-input [opts]
   [err-reported opts chip-input*])
 
-(def empty-img-src "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==")
+(def empty-img-src "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=")
+
 
 (defn file-drag-input* [{:keys [form-data id file-accept-pred on-file-accepted on-file-rejected]
                          :or {file-accept-pred (constantly true)}}]
