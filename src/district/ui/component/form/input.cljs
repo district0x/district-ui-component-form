@@ -59,7 +59,7 @@
                   path))]
     (update-in doc n-path fn)))
 
-(defn with-label [label body {:keys [:group-class :form-data :id]}]
+(defn with-label [label body {:keys [:group-class :form-data :id :for]}]
   (let [filled? (when (and form-data
                            id)
                   (not (or
@@ -71,7 +71,7 @@
                   (when filled? " filled")
                   (when (= (first body)
                            chip-input) " tall-version"))}
-     [:label label]
+     [:label (when id {:for for}) label]
      body]))
 
 (defn id-for-path [path]
@@ -110,16 +110,15 @@
          {:class (str (when group-class (name group-class))
                       (cond (:error err-map) " has-error"
                             (:warning err-map) " has-warning"
-                            (:hint err-map) " has-hint"))}
+                            (:hint (get-by-path errors [:local id])) " has-hint"))}
          [cmp (assoc opts :on-change on-touched)]
-         [:span.help-block (if err-map
-                             (get err-map :error
-                                  (get err-map :warning
-                                       (get err-map :hint)))
-                             [:div {:dangerouslySetInnerHTML {:__html "&nbsp;"}}])]]))))
+         [:span.help-block  (get err-map :error
+                                 (get err-map :warning
+                                      (:hint (get-by-path errors [:local id]))))
+          [:div {:dangerouslySetInnerHTML {:__html "&nbsp;"}}]]]))))
 
 
-(defn text-input* [{:keys [id form-data errors on-change attrs input-type] :as opts}]
+(defn text-input* [{:keys [id form-data errors on-change attrs input-type dom-id] :as opts}]
   (fn [{:keys [id form-data errors on-change attrs input-type] :as opts}]
     (let [a (if (= input-type :textarea)
               :textarea
@@ -127,6 +126,7 @@
           other-opts (apply dissoc opts (conj arg-keys :input-type))]
       [a (merge
           {:type "text"
+           :id dom-id
            :value (get-by-path @form-data id "")
            :on-change #(let [v (-> % .-target .-value)]
                          (swap! form-data assoc-by-path id v)
