@@ -123,7 +123,7 @@
     (let [a (if (= input-type :textarea)
               :textarea
               :input)
-          other-opts (apply dissoc opts (conj arg-keys :input-type))]
+          other-opts (apply dissoc opts (conj arg-keys :input-type :dom-id))]
       [a (merge
           {:type "text"
            :id dom-id
