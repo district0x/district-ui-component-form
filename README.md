@@ -46,4 +46,3 @@ Add to dependencies <br>
 ```
 Validation errors are expected to mirror the shape of data, divided into :local and :remote.
 Local group is always on, where remote errors persists only until the inputs are touched.
-
