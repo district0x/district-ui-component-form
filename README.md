@@ -1,6 +1,8 @@
 # district-ui-component-form
 
-Reagent form library
+[![Build Status](https://travis-ci.org/district0x/district-ui-component-form.svg?branch=master)](https://travis-ci.org/district0x/district-ui-component-form)
+
+Reagent forms library
 
 ## License
 
