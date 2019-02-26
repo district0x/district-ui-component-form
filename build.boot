@@ -1,9 +1,9 @@
 (def project 'district0x/district-ui-component-form)
-  (def version "0.1.12")
+(def version "0.1.13")
 
 (set-env! :resource-paths #{"resources" "src"}
           :source-paths   #{"test"}
-          :dependencies   '[[org.clojure/clojure "RELEASE"]
+          :dependencies   '[#_[org.clojure/clojure "RELEASE"]
                             [org.clojure/clojurescript "1.10.238"]
                             [adzerk/boot-test "RELEASE" :scope "test"]
                             [adzerk/boot-cljs          "2.1.4"  :scope "test"];;:exclusions [org.clojure/clojurescript]
@@ -16,7 +16,7 @@
  pom {:project     project
       :version     version
       :description "Forms library"
-      :url         "https://github.com/district0x/distrirct-ui-component-form"
+      :url         "https://github.com/district0x/district-ui-component-form"
       :scm         {:url "https://github.com/github.com/district-ui-component-form"}
       :license     {"Eclipse Public License"
                     "http://www.eclipse.org/legal/epl-v10.html"}})
