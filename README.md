@@ -2,12 +2,18 @@
 
 Reagent form library
 
+## License
+
+Distributed under the Eclipse Public License either version 1.0 or (at
+your option) any later version.
 ## Installation
-```clojure
-;; Add to dependencies
-[district0x/district-ui-component-form "0.1.13"]
+
+Add to dependencies <br>
+
+[![Clojars Project](https://img.shields.io/clojars/v/district0x/district-ui-component-form.svg)](https://clojars.org/district0x/district-ui-component-form)
 
 ## Usage
+
 ```clojure
 (ns my.application
   (:require
@@ -39,7 +45,3 @@ Reagent form library
 Validation errors are expected to mirror the shape of data, divided into :local and :remote.
 Local group is always on, where remote errors persists only until the inputs are touched.
 
-## License
-
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
