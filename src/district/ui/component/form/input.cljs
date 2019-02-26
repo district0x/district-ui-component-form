@@ -402,7 +402,7 @@
   [err-reported opts amount-input*])
 
 (defn pending-button [{:keys [:pending? :pending-text] :as opts
-                       :or {:pending-text "Sending..."}} & children]
+                       :or {pending-text "Sending..."}} & children]
   (let [other-opts (dissoc opts :pending? :pending-text)]
     (into
      [:button (merge
