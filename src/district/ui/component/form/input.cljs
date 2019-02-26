@@ -1,11 +1,11 @@
 (ns district.ui.component.form.input
   (:require [clojure.set :refer [rename-keys]]
-            [reagent.core :as r]
-            [clojure.string :as str])
+            [clojure.string :as str]
+            [reagent.core :as r])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
-
 (declare chip-input)
+
 (defn keys-in [m]
   (if (map? m)
     (vec
