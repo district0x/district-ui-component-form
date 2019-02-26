@@ -41,4 +41,4 @@
    (production)
    (cljs)
    (build-jar)
-   (push-snapshot)))
+   (push-release)))
