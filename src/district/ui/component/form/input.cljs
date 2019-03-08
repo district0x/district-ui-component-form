@@ -301,27 +301,27 @@
                          :or {file-accept-pred (constantly true)}}]
   (let [allow-drop #(.preventDefault %)
         handle-files-select (fn [files]
-                              (let [f (aget files 0)
-                                    fprops {:name (.-name f)
+                              (if-let [f (aget files 0)]
+                                (let [fprops {:name (.-name f)
                                             :type (.-type f)
                                             :size (.-size f)
                                             :file f}]
-                                (if (file-accept-pred fprops)
-                                  (let [url-reader (js/FileReader.)
-                                        ab-reader (js/FileReader.)]
-                                    (set! (.-onload url-reader) (fn [e]
-                                                                  (let [img-data (-> e .-target .-result)
-                                                                        fmap (assoc fprops :url-data img-data)]
-                                                                    (swap! form-data assoc-in [id :selected-file] fmap))))
-                                    (.readAsDataURL url-reader f)
-                                    (set! (.-onload ab-reader) (fn [e]
-                                                                 (let [img-data (-> e .-target .-result)
-                                                                       fmap (assoc fprops :array-buffer img-data)]
-                                                                   (swap! form-data update id merge fmap)
-                                                                   (when on-file-accepted (on-file-accepted fmap)))))
-                                    (.readAsArrayBuffer ab-reader f))
-                                  (when on-file-rejected
-                                    (on-file-rejected fprops)))))]
+                                    (if (file-accept-pred fprops)
+                                      (let [url-reader (js/FileReader.)
+                                            ab-reader (js/FileReader.)]
+                                        (set! (.-onload url-reader) (fn [e]
+                                                                      (let [img-data (-> e .-target .-result)
+                                                                            fmap (assoc fprops :url-data img-data)]
+                                                                        (swap! form-data assoc-in [id :selected-file] fmap))))
+                                        (.readAsDataURL url-reader f)
+                                        (set! (.-onload ab-reader) (fn [e]
+                                                                     (let [img-data (-> e .-target .-result)
+                                                                           fmap (assoc fprops :array-buffer img-data)]
+                                                                       (swap! form-data update id merge fmap)
+                                                                       (when on-file-accepted (on-file-accepted fmap)))))
+                                        (.readAsArrayBuffer ab-reader f))
+                                      (when on-file-rejected
+                                        (on-file-rejected fprops))))))]
     (fn [{:keys [form-data id file-accept-pred on-file-accepted on-file-rejected]
          :as opts
          :or {file-accept-pred (constantly true)}}]
