@@ -159,10 +159,13 @@
                                      (nil? iv)
                                      (js/isNaN iv))
                                   val
-                                  iv)]
+                                  iv)
+                            label (-> (.-target.selectedOptions item)
+                                        (aget 0)
+                                        .-innerHTML)]
                         (swap! form-data assoc-by-path id val)
                         (when on-change
-                          (on-change val))))
+                          (on-change {:value val :label label}))))
          :value (get-by-path @form-data id)}
         other-opts
         attrs)
