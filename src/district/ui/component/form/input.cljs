@@ -193,43 +193,46 @@
 (defn checkbox-input [{:keys [id form-data errors] :as opts}]
   [err-reported opts checkbox-input*])
 
-(defn autocomplete-input* [{:keys [form-data id ac-options on-option-selected on-empty-backspace on-new-option] :as opts}]
+(defn autocomplete-input* [{:keys [form-data id ac-options on-option-selected on-empty-backspace on-new-option select-keycodes] :as opts}]
   (let [selected-idx (r/atom 0)]
-    (fn [{:keys [form-data id ac-options on-option-selected on-empty-backspace on-new-option]}]
-      (let [other-opts (apply dissoc opts (conj arg-keys :ac-options :on-option-selected :on-empty-backspace :on-new-option))
+    (fn [{:keys [form-data id ac-options on-option-selected on-empty-backspace on-new-option select-keycodes]}]
+      (let [other-opts (apply dissoc opts [:ac-options :on-option-selected :on-empty-backspace :on-new-option :select-keycodes])
+            txt-id (str "txt-" id)
+            clear-input! #(swap! form-data assoc txt-id "")
             select-opt (fn [o]
-                         (swap! form-data assoc id "")
+                         (clear-input!)
                          (reset! selected-idx 0)
                          (on-option-selected o))
-            selectable-opts (let [input (get @form-data id)]
+            selectable-opts (let [input (get @form-data txt-id)]
                               (when (not-empty input)
                                 (filter #(str/starts-with? % input) ac-options)))
-            key-down-handler (fn [e]
-                               (let [key-code (-> e .-keyCode)
-                                     input (get @form-data id)]
-                                 (cond
-                                   (and (= key-code 8) ;; backspace key
-                                        (empty? input))
-                                   (on-empty-backspace)
+            key-up-handler (fn [e]
+                             (let [key-code (-> e .-keyCode)
+                                   input (get @form-data txt-id)]
 
-                                   (= key-code 13) ;; return key
-                                   (if (not-empty selectable-opts)
-                                     (select-opt (nth selectable-opts @selected-idx)) ;; [return] over option
-                                     (when-not (empty? input)
-                                       (on-new-option input)
-                                       (swap! form-data assoc id ""))) ;; [return] with some text that is not a option
+                               (cond
+                                 (and (= key-code 8) ;; backspace key
+                                      (empty? input))
+                                 (on-empty-backspace)
 
-                                   (= key-code 40) ;; down key
-                                   (swap! selected-idx #(min (inc %) (dec (count selectable-opts))))
+                                 ((or select-keycodes #{13}) key-code) ;; "return" key
+                                 (if (not-empty selectable-opts)
+                                   (select-opt (nth selectable-opts @selected-idx)) ;; [return] over option
+                                   (when-not (empty? input)
+                                     (on-new-option (if (not= key-code 13)
+                                                      (subs input 0 (dec (count input)))
+                                                      input))
+                                     (clear-input!))) ;; [return] with some text that is not a option
 
-                                   (= key-code 38) ;; up key
-                                   (swap! selected-idx #(max (dec %) 0)))))]
+                                 (= key-code 40) ;; down key
+                                 (swap! selected-idx #(min (inc %) (dec (count selectable-opts))))
+
+                                 (= key-code 38) ;; up key
+                                 (swap! selected-idx #(max (dec %) 0)))))]
         [:div.autocomplete-input
-         [text-input* (merge
-                       {:form-data form-data
-                        :id id
-                        :on-key-down key-down-handler}
-                       other-opts)]
+         [text-input* {:form-data form-data
+                       :id txt-id
+                       :on-key-up key-up-handler}]
          (when (not-empty selectable-opts)
            [:ol.options
             (doall
@@ -246,18 +249,18 @@
 (defn autocomplete-input [{:keys [id form-data errors] :as opts}]
   [err-reported opts autocomplete-input*])
 
-(defn chip-input* [{:keys [form-data chip-set-path ac-options chip-render-fn on-change] :as opts}]
+(defn chip-input* [{:keys [form-data chip-set-path ac-options chip-render-fn on-change select-keycodes id] :as opts}]
   (let [focus (r/atom false)]
     (fn [{:keys [form-data chip-set-path ac-options chip-render-fn on-change] :as opts}]
       ;;TODO: chip-set-path should be just id
-      (let [other-opts (apply dissoc opts (conj arg-keys
-                                                :chip-set-path
-                                                :ac-options
-                                                :chip-render-fn
-                                                :on-change
-                                                :on-empty-backspace
-                                                :on-focus
-                                                :on-blur))
+      (let [other-opts (apply dissoc opts [:chip-set-path
+                                           :ac-options
+                                           :chip-render-fn
+                                           :on-change
+                                           :on-empty-backspace
+                                           :on-focus
+                                           :on-blur
+                                           :select-keycodes])
             add-chip-fn (fn [chip]
                           (swap! form-data update-in chip-set-path (fn [cs] (conj (or cs []) chip)))
                           (when on-change (on-change)))]
@@ -280,6 +283,7 @@
                                 :on-new-option add-chip-fn
                                 :on-focus #(reset! focus true)
                                 :on-blur #(reset! focus false)
+                                :select-keycodes select-keycodes
                                 :on-empty-backspace #(swap! form-data update-in chip-set-path butlast)}
                                other-opts)]]))))
 
