@@ -297,7 +297,7 @@
 (def empty-img-src "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=")
 
 
-(defn file-drag-input* [{:keys [form-data id file-accept-pred on-file-accepted on-file-rejected]
+(defn file-drag-input* [{:keys [form-data id file-accept-pred on-file-accepted on-file-rejected comment]
                          :or {file-accept-pred (constantly true)}}]
   (let [allow-drop #(.preventDefault %)
         handle-files-select (fn [files]
@@ -322,7 +322,7 @@
                                         (.readAsArrayBuffer ab-reader f))
                                       (when on-file-rejected
                                         (on-file-rejected fprops))))))]
-    (fn [{:keys [form-data id file-accept-pred on-file-accepted on-file-rejected]
+    (fn [{:keys [form-data id file-accept-pred on-file-accepted on-file-rejected comment]
          :as opts
          :or {file-accept-pred (constantly true)}}]
       (let [{:keys [name url-data]} (get-in @form-data [id :selected-file])]
@@ -334,6 +334,7 @@
           :on-drag-enter allow-drop}
          [:img {:src (or url-data empty-img-src)}]
          [:span.file-name name]
+         (when-not (empty? comment) [:span.file-comment comment])
          [:label.file-input-label
           {:for (id-for-path id)}
           (get opts :label "File...")]
