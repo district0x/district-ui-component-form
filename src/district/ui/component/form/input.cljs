@@ -274,7 +274,9 @@
             ^{:key c}
             [:li.chip
              (chip-render-fn c)
-             [:span {:on-click #(swap! form-data update-in chip-set-path (fn [cs] (remove #{c} cs)))}
+             [:span {:on-click (fn []
+                                 (swap! form-data update-in chip-set-path (fn [cs] (remove #{c} cs)))
+                                 (when on-change (on-change)))}
               "X"]])]
          [autocomplete-input* (merge
                                {:form-data form-data
@@ -287,7 +289,8 @@
                                 :on-focus #(reset! focus true)
                                 :on-blur #(reset! focus false)
                                 :select-keycodes select-keycodes
-                                :on-empty-backspace #(swap! form-data update-in chip-set-path butlast)}
+                                :on-empty-backspace #(do (swap! form-data update-in chip-set-path butlast)
+                                                         (when on-change (on-change)))}
                                other-opts)]]))))
 
 
