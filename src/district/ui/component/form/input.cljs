@@ -208,7 +208,7 @@
                          (on-option-selected o))
             selectable-opts (let [input (get @form-data txt-id)]
                               (when (not-empty input)
-                                (filter #(str/starts-with? % input) ac-options)))
+                                (filter #(str/starts-with? (str/lower-case %) (str/lower-case input)) ac-options)))
             key-up-handler (fn [e]
                              (let [key-code (-> e .-keyCode)
                                    input (get @form-data txt-id)]
