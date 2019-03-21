@@ -214,10 +214,6 @@
                                    input (get @form-data txt-id)]
 
                                (cond
-                                 (and (= key-code 8) ;; backspace key
-                                      (empty? input))
-                                 (on-empty-backspace)
-
                                  ((or select-keycodes #{13}) key-code) ;; "return" key
                                  (if (not-empty selectable-opts)
                                    (select-opt (nth selectable-opts @selected-idx)) ;; [return] over option
@@ -231,11 +227,21 @@
                                  (swap! selected-idx #(min (inc %) (dec (count selectable-opts))))
 
                                  (= key-code 38) ;; up key
-                                 (swap! selected-idx #(max (dec %) 0)))))]
+                                 (swap! selected-idx #(max (dec %) 0)))))
+            key-down-handler (fn [e]
+                               (let [key-code (-> e .-keyCode)
+                                     input (get @form-data txt-id)]
+
+                                 (cond
+                                   (and (= key-code 8) ;; backspace key
+                                        (empty? input))
+                                   (on-empty-backspace))))]
         [:div.autocomplete-input
          [text-input* {:form-data form-data
                        :id txt-id
-                       :on-key-up key-up-handler}]
+                       :on-key-up key-up-handler
+                       :on-key-down key-down-handler
+                       }]
          (when (not-empty selectable-opts)
            [:ol.options
             (doall
