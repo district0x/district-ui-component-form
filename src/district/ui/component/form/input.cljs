@@ -180,6 +180,19 @@
 (defn select-input [{:keys [id form-data errors] :as opts}]
   [err-reported opts select-input*])
 
+(defn radio-group [{:keys [id form-data options]}]
+  [:div.radio-group
+   (doall (for [{:keys [label key]} options]
+            ^{:key key}
+            [:div.radio
+             [:input {:type :radio
+                      :id (name key)
+                      :value (name key)
+                      :on-change (fn [ev]
+                                   (swap! form-data assoc id (keyword (-> ev .-target .-value))))
+                      :checked (= (get @form-data id) key)}]
+             [:label {:for key} label]]))])
+
 (defn checkbox-input* [{:keys [id form-data errors on-change attrs] :as opts}]
   (fn [{:keys [id form-data errors on-change attrs] :as opts}]
     (let [other-opts (apply dissoc opts (conj arg-keys :options))]
