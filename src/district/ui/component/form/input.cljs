@@ -81,7 +81,7 @@
 
 (defn err-reported [{:keys [id form-data errors on-change group-class] :as opts} cmp]
   (let []
-    (fn [{:keys [id form-data errors on-change] :as opts}]
+    (fn [{:keys [id form-data errors on-change group-class] :as opts}]
       (let [on-touched (fn [new-val]
                          (let [old-meta (or (meta @form-data)
                                             {})
