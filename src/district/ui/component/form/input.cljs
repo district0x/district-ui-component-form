@@ -296,21 +296,21 @@
              [:span {:on-click (fn []
                                  (swap! form-data update-in chip-set-path (fn [cs] (remove #{c} cs)))
                                  (when on-change (on-change)))}
-              "X"]])]
-         [autocomplete-input* (merge
-                               {:form-data form-data
-                                :ac-options (->> ac-options
-                                                 (remove (set (get-in @form-data chip-set-path)))
-                                                 (filter #(not= % nil))
-                                                 (into []))
-                                :on-option-selected add-chip-fn
-                                :on-new-option add-chip-fn
-                                :on-focus #(reset! focus true)
-                                :on-blur #(reset! focus false)
-                                :select-keycodes select-keycodes
-                                :on-empty-backspace #(do (swap! form-data update-in chip-set-path butlast)
-                                                         (when on-change (on-change)))}
-                               other-opts)]]))))
+              "X"]])
+          [autocomplete-input* (merge
+                                {:form-data form-data
+                                 :ac-options (->> ac-options
+                                                  (remove (set (get-in @form-data chip-set-path)))
+                                                  (filter #(not= % nil))
+                                                  (into []))
+                                 :on-option-selected add-chip-fn
+                                 :on-new-option add-chip-fn
+                                 :on-focus #(reset! focus true)
+                                 :on-blur #(reset! focus false)
+                                 :select-keycodes select-keycodes
+                                 :on-empty-backspace #(do (swap! form-data update-in chip-set-path butlast)
+                                                          (when on-change (on-change)))}
+                                other-opts)]]]))))
 
 
 (defn chip-input [opts]
