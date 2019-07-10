@@ -1,4 +1,4 @@
-(defproject district0x/district-ui-component-form "0.2.8-SNAPSHOT"
+(defproject district0x/district-ui-component-form "0.2.9-SNAPSHOT"
   :description "district UI forms library "
   :url "https://github.com/district0x/district-ui-component-form"
   :license {:name "Eclipse Public License"
