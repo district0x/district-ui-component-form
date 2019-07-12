@@ -443,4 +443,3 @@
      (if pending?
        [pending-text]
        children))))
-
