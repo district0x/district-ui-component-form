@@ -288,7 +288,6 @@
                           (when on-change (on-change)))]
         [:div.chip-input
          {:class (when @focus "focused")}
-
          [:div.chips
           (for [c (get-in @form-data chip-set-path)]
             ^{:key c}
