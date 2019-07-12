@@ -288,10 +288,11 @@
                           (when on-change (on-change)))]
         [:div.chip-input
          {:class (when @focus "focused")}
-         [:ol.chips
+
+         [:div.chips
           (for [c (get-in @form-data chip-set-path)]
             ^{:key c}
-            [:li.chip
+            [:div.chip
              (chip-render-fn c)
              [:span {:on-click (fn []
                                  (swap! form-data update-in chip-set-path (fn [cs] (remove #{c} cs)))
@@ -443,3 +444,4 @@
      (if pending?
        [pending-text]
        children))))
+
