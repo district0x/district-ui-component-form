@@ -318,7 +318,6 @@
 
 (def empty-img-src "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=")
 
-
 (defn file-drag-input* [{:keys [form-data id file-accept-pred on-file-accepted on-file-rejected comment]
                          :or {file-accept-pred (constantly true)}}]
   (let [allow-drop #(.preventDefault %)
@@ -347,14 +346,25 @@
     (fn [{:keys [form-data id file-accept-pred on-file-accepted on-file-rejected comment]
          :as opts
          :or {file-accept-pred (constantly true)}}]
-      (let [{:keys [name url-data]} (get-in @form-data [id :selected-file])]
+      (let [{:keys [name url-data type] :as selected-file} (get-in @form-data [id :selected-file])]
         [:div.dropzone
          {:on-drag-over allow-drop
           :on-drop #(do
                       (.preventDefault %)
                       (handle-files-select (.. % -dataTransfer -files)))
           :on-drag-enter allow-drop}
-         [:img {:src (or url-data empty-img-src)}]
+         (if (and (not (nil? url-data))
+                  (= "video/mp4" type))
+           [:video {:controls false
+                    :loop true
+                    :autoPlay true
+                    :muted true
+                    :width 290
+                    :height 435}
+            [:source {:src url-data
+                      :type "video/mp4"}]
+            [:span "Your browser does not support video tags"]]
+           [:img {:src (or url-data empty-img-src)}])
          [:span.file-name name]
          (when-not (empty? comment) [:span.file-comment comment])
          [:label.file-input-label
@@ -363,8 +373,7 @@
          [:input {:type :file
                   :id (id-for-path id)
                   :on-change (fn [e]
-                               (handle-files-select (-> e .-target .-files)))}]
-         ]))))
+                               (handle-files-select (-> e .-target .-files)))}]]))))
 
 (defn file-drag-input [opts]
   [err-reported opts file-drag-input*])
