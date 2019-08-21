@@ -332,7 +332,7 @@
                                                               accept-pred-result
                                                               (js-invoke js/Promise "resolve" accept-pred-result))]
                                     (-> accept-pred-promise
-                                      (.then (fn []
+                                      (.then (fn [args]
                                                (let [url-reader (js/FileReader.)
                                                      ab-reader (js/FileReader.)]
                                                  (set! (.-onload url-reader) (fn [e]
@@ -344,11 +344,12 @@
                                                                               (let [img-data (-> e .-target .-result)
                                                                                     fmap (assoc fprops :array-buffer img-data)]
                                                                                 (swap! form-data update id merge fmap)
-                                                                                (when on-file-accepted (on-file-accepted fmap)))))
+                                                                                (when on-file-accepted
+                                                                                  (on-file-accepted fmap args)))))
                                                  (.readAsArrayBuffer ab-reader f))))
-                                      (.catch (fn []
+                                      (.catch (fn [args]
                                                 (when on-file-rejected
-                                                  (on-file-rejected fprops)))))))))]
+                                                  (on-file-rejected fprops args)))))))))]
     (fn [{:keys [form-data id file-accept-pred on-file-accepted on-file-rejected comment]
           :as opts
           :or {file-accept-pred (constantly true)}}]
