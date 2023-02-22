@@ -318,7 +318,7 @@
 
 (def empty-img-src "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=")
 
-(defn file-drag-input* [{:keys [form-data id file-accept-pred on-file-accepted on-file-rejected comment img-attributes video-attributes]
+(defn file-drag-input* [{:keys [form-data id file-accept-pred on-file-accepted on-file-rejected comment img-attributes video-attributes accept]
                          :or {file-accept-pred (constantly true)}}]
   (let [allow-drop #(.preventDefault %)
         handle-files-select (fn [files]
@@ -330,7 +330,9 @@
                                   (let [accept-pred-result (file-accept-pred fprops)
                                         accept-pred-promise (if (instance? js/Promise accept-pred-result)
                                                               accept-pred-result
-                                                              (js-invoke js/Promise "resolve" accept-pred-result))]
+                                                              (if accept-pred-result
+                                                                (js-invoke js/Promise "resolve" accept-pred-result)
+                                                                (js-invoke js/Promise "reject" accept-pred-result)))]
                                     (-> accept-pred-promise
                                       (.then (fn [args]
                                                (let [url-reader (js/FileReader.)
@@ -350,7 +352,7 @@
                                       (.catch (fn [args]
                                                 (when on-file-rejected
                                                   (on-file-rejected fprops args)))))))))]
-    (fn [{:keys [form-data id file-accept-pred on-file-accepted on-file-rejected comment]
+    (fn [{:keys [form-data id file-accept-pred on-file-accepted on-file-rejected comment img-attributes video-attributes]
           :as opts
           :or {file-accept-pred (constantly true)}}]
       (let [{:keys [name url-data type] :as selected-file} (get-in @form-data [id :selected-file])]
@@ -378,10 +380,11 @@
          [:label.file-input-label
           {:for (id-for-path id)}
           (get opts :label "File...")]
-         [:input {:type :file
-                  :id (id-for-path id)
-                  :on-change (fn [e]
-                               (handle-files-select (-> e .-target .-files)))}]]))))
+         [:input (merge (when accept {:accept accept})
+                        {:type :file
+                         :id (id-for-path id)
+                         :on-change (fn [e]
+                                      (handle-files-select (-> e .-target .-files)))})]]))))
 
 (defn file-drag-input [opts]
   [err-reported opts file-drag-input*])
